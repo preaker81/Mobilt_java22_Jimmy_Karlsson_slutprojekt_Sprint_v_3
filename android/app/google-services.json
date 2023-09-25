@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "534334359856",
+    "project_id": "mtgcompanion-b5d89",
+    "storage_bucket": "mtgcompanion-b5d89.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:534334359856:android:9e4430bd836f0cc9fe60f5",
+        "android_client_info": {
+          "package_name": "com.example.mtg_companion"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDogoEx0H_1klJglqQxtls-7S436awx9iI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
