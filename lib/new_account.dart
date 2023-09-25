@@ -19,39 +19,56 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextFormField(
-              controller: usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a username';
-                }
-                return null;
-              },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TextFormField(
+                controller: usernameController,
+                decoration: InputDecoration(labelText: 'Username'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a username';
+                  }
+                  return null;
+                },
+              ),
             ),
-            TextFormField(
-              controller: passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a password';
-                }
-                return null;
-              },
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: TextFormField(
+                controller: passwordController,
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a password';
+                  }
+                  return null;
+                },
+              ),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                if (usernameController.text.isNotEmpty &&
-                    passwordController.text.isNotEmpty) {
-                  await firestoreHelper.addUser(
-                      usernameController.text, passwordController.text);
-                  Navigator.pop(context); // Go back to the login screen
-                } else {
-                  // You can show a dialog or snackbar here for failed validation
-                }
-              },
-              child: Text('Create New User'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (usernameController.text.isNotEmpty &&
+                      passwordController.text.isNotEmpty) {
+                    await firestoreHelper.addUser(
+                        usernameController.text, passwordController.text);
+                    Navigator.pop(context); // Go back to the login screen
+                  } else {
+                    // You can show a dialog or snackbar here for failed validation
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[800], // background
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
+                child: const Text('Create New User',
+                    style: TextStyle(color: Colors.black)),
+              ),
             )
           ],
         ),

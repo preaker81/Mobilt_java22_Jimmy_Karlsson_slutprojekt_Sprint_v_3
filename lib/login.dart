@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'data/firestore_helper.dart'; // Adjust this import as needed
+import 'data/firestore_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushReplacementNamed(context, '/dashboard');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Invalid username or password')),
+        const SnackBar(content: Text('Invalid username or password')),
       );
     }
   }
@@ -46,30 +46,74 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
-      body: Column(
-        children: [
-          TextField(
-            controller: _usernameController,
-            decoration: InputDecoration(hintText: 'Username'),
-          ),
-          TextField(
-            controller: _passwordController,
-            decoration: InputDecoration(hintText: 'Password'),
-            obscureText: true,
-          ),
-          ElevatedButton(
-            onPressed: _login,
-            child: Text('Login'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/new_account');
-            },
-            child: Text('New User'),
-          ),
-        ],
+      appBar: AppBar(title: const Text('Login')),
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          return (orientation == Orientation.portrait)
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: _buildLoginUI(),
+                )
+              : SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: _buildLoginUI(),
+                  ),
+                );
+        },
       ),
     );
+  }
+
+  List<Widget> _buildLoginUI() {
+    return [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: TextField(
+          controller: _usernameController,
+          decoration: const InputDecoration(hintText: 'Username'),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: TextField(
+          controller: _passwordController,
+          decoration: const InputDecoration(hintText: 'Password'),
+          obscureText: true,
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/new_account');
+              },
+              style: ElevatedButton.styleFrom(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
+              ),
+              child:
+                  const Text('New User', style: TextStyle(color: Colors.black)),
+            ),
+            ElevatedButton(
+              onPressed: _login,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green[800], // background
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
+              ),
+              child: const Text('Login', style: TextStyle(color: Colors.black)),
+            ),
+          ],
+        ),
+      ),
+    ];
   }
 }
