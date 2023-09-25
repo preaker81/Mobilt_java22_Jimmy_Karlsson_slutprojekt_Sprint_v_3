@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mtg_companion/firebase_options.dart';
@@ -9,21 +8,6 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  //firestore ------------------------------------------------------------------
-  final FirebaseFirestore storedb = FirebaseFirestore.instance;
-  final city = <String, String>{
-    "name": "ALRIK",
-    "age": "31",
-    "country": "Sweden"
-  };
-  print(storedb);
-  storedb
-      .collection("cities")
-      .doc("LA")
-      .set(city)
-      .onError((e, _) => print("Error writing document: $e"));
-  // ---------------------------------------------------------------------------
-
   runApp(const MyApp());
 }
 
@@ -33,7 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Blank App',
+      title: 'Mtg Companion',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
