@@ -17,7 +17,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Blank App',
+      title: 'Mtg Companion',
+      debugShowCheckedModeBanner: false, // Remove debug banner
       initialRoute: '/login', // Set the initial route as '/login'
       routes: {
         '/login': (context) => LoginScreen(),
@@ -26,6 +27,9 @@ class MyApp extends StatelessWidget {
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        appBarTheme: const AppBarTheme(
+            backgroundColor:
+                Colors.lightBlue), // Set AppBar background to light blue
         useMaterial3: true,
       ),
     );
