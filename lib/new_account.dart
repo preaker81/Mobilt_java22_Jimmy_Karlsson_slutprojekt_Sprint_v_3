@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'data/firestore_helper.dart'; // import FirestoreHelper
 
 class NewAccountScreen extends StatefulWidget {
+  const NewAccountScreen({super.key});
+
   @override
   _NewAccountScreenState createState() => _NewAccountScreenState();
 }
@@ -14,7 +16,7 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Create New Account')),
+      appBar: AppBar(title: const Text('Create New Account')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -23,7 +25,7 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: TextFormField(
                 controller: usernameController,
-                decoration: InputDecoration(labelText: 'Username'),
+                decoration: const InputDecoration(labelText: 'Username'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a username';
