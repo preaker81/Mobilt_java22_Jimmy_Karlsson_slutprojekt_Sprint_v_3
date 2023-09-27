@@ -3,8 +3,9 @@ import 'package:mtg_companion/login.dart';
 import 'package:mtg_companion/search_result.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mtg_companion/data/api_helper.dart';
-import 'package:mtg_companion/data/firestore_helper.dart'; // New import
+import 'package:mtg_companion/data/firestore_helper.dart';
 
+// DashboardScreen is a StatefulWidget to handle state changes
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -12,15 +13,22 @@ class DashboardScreen extends StatefulWidget {
   _DashboardScreenState createState() => _DashboardScreenState();
 }
 
+// _DashboardScreenState is the mutable state for DashboardScreen
 class _DashboardScreenState extends State<DashboardScreen> {
+  // Controller for the search TextField
   final TextEditingController searchStringController = TextEditingController();
-  final apiHelper = ApiHelper();
-  final firestoreHelper = FirestoreHelper(); // New variable
 
+  // Helpers for API and Firestore operations
+  final apiHelper = ApiHelper();
+  final firestoreHelper = FirestoreHelper();
+
+  // Asynchronously handle logging out
   Future<void> _logout(BuildContext context) async {
+    // Retrieve SharedPreferences instance
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
 
+    // Navigate to LoginScreen and remove all other screens from the stack
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -28,6 +36,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // Handle back press with custom logic
   Future<bool> _onWillPop(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? isLoggedIn = prefs.getBool('isLoggedIn');
@@ -36,14 +45,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('You are already logged in.')),
       );
-      return false; // Cancel the pop operation
+      return false;
     }
-    return true; // Allow the pop operation
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
+      // Custom back press handling
       onWillPop: () => _onWillPop(context),
       child: Scaffold(
         appBar: AppBar(
@@ -63,25 +73,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.stretch, // Stretch to full width
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextField(
                 controller: searchStringController,
                 decoration:
                     const InputDecoration(labelText: 'Search by string'),
               ),
-              // Center the search and favorites buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
                     onPressed: () async {
+                      // Fetch cards from API
                       try {
                         final cards = await apiHelper.fetchCards(
                           searchString: searchStringController.text,
                         );
-
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -100,16 +108,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     },
                     child: const Text('Search'),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   ElevatedButton(
                     onPressed: () async {
+                      // Fetch favorite cards
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
                       String? username = prefs.getString('username');
+
                       if (username != null) {
-                        // fetchFavoriteCards() fetches favorite cards for the user
-                        final favoriteCards = await FirestoreHelper()
-                            .fetchFavoriteCards(username);
+                        final favoriteCards =
+                            await firestoreHelper.fetchFavoriteCards(username);
 
                         if (favoriteCards.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -121,16 +130,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => SearchResultScreen(
-                                cards: {
-                                  'data': favoriteCards
-                                }, // wrapping it in a Map
+                                cards: {'data': favoriteCards},
                                 isFavorites: true,
                               ),
                             ),
                           );
                         }
                       } else {
-                        // Handle user not found case, maybe by showing a SnackBar
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('User not found')),
                         );

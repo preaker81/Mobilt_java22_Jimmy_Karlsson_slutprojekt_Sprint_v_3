@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'data/firestore_helper.dart';
 
+/// LoginScreen Widget - Represents the login screen.
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
+/// _LoginScreenState - Stateful logic for LoginScreen.
 class _LoginScreenState extends State<LoginScreen> {
+  // Controllers for text fields
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -19,7 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
     _checkLoggedInStatus();
   }
 
-  void _checkLoggedInStatus() async {
+  /// Check if the user is already logged in.
+  Future<void> _checkLoggedInStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? isLoggedIn = prefs.getBool('isLoggedIn');
     if (isLoggedIn == true) {
@@ -27,7 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _login() async {
+  /// Login functionality.
+  Future<void> _login() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
 
@@ -51,25 +56,24 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Login')),
       body: OrientationBuilder(
-        builder: (context, orientation) {
-          return (orientation == Orientation.portrait)
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+        builder: (context, orientation) => (orientation == Orientation.portrait)
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: _buildLoginUI(),
+              )
+            : SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: _buildLoginUI(),
-                )
-              : SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: _buildLoginUI(),
-                  ),
-                );
-        },
+                ),
+              ),
       ),
     );
   }
 
+  /// Build the UI components for login.
   List<Widget> _buildLoginUI() {
     return [
       Padding(
@@ -96,23 +100,14 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: () {
                 Navigator.pushNamed(context, '/new_account');
               },
-              style: ElevatedButton.styleFrom(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.zero,
-                ),
-              ),
-              child:
-                  const Text('New User', style: TextStyle(color: Colors.black)),
+              child: const Text('New User'),
             ),
             ElevatedButton(
               onPressed: _login,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green[800], // background
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.zero,
-                ),
+                backgroundColor: Colors.green[800],
               ),
-              child: const Text('Login', style: TextStyle(color: Colors.black)),
+              child: const Text('Login'),
             ),
           ],
         ),

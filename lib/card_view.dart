@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:mtg_companion/data/firestore_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// A StatefulWidget responsible for rendering a view for an MTG card.
 class CardView extends StatefulWidget {
+  // Data for the MTG card to be displayed
   final dynamic cardData;
 
-  CardView({required this.cardData});
+  // Initialize the cardData through constructor
+  const CardView({super.key, required this.cardData});
 
   @override
   _CardViewState createState() => _CardViewState();
@@ -21,7 +24,8 @@ class _CardViewState extends State<CardView> {
     _checkIfFavorite();
   }
 
-  void _checkIfFavorite() async {
+  /// Check if the card is marked as favorite by the user.
+  Future<void> _checkIfFavorite() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? username = prefs.getString('username');
     if (username != null) {
@@ -37,33 +41,37 @@ class _CardViewState extends State<CardView> {
   Widget build(BuildContext context) {
     return OrientationBuilder(
       builder: (context, orientation) => Scaffold(
-        appBar: buildAppBar(),
+        appBar: _buildAppBar(),
         body: orientation == Orientation.portrait
-            ? buildPortraitLayout()
-            : buildLandscapeLayout(),
+            ? _buildPortraitLayout()
+            : _buildLandscapeLayout(),
       ),
     );
   }
 
-  AppBar buildAppBar() {
+  /// Build the app bar for the card view.
+  AppBar _buildAppBar() {
     return AppBar(title: Text(widget.cardData['name'] ?? 'Unknown Card'));
   }
 
-  Widget buildPortraitLayout() {
-    return buildLayoutWithPadding(buildCommonWidgets(true));
+  /// Build the layout in portrait mode.
+  Widget _buildPortraitLayout() {
+    return _buildLayoutWithPadding(_buildCommonWidgets(true));
   }
 
-  Widget buildLandscapeLayout() {
+  /// Build the layout in landscape mode.
+  Widget _buildLandscapeLayout() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildScrollableImage(),
-        Expanded(child: buildLayoutWithPadding(buildCommonWidgets(false))),
+        _buildScrollableImage(),
+        Expanded(child: _buildLayoutWithPadding(_buildCommonWidgets(false))),
       ],
     );
   }
 
-  Widget buildLayoutWithPadding(List<Widget> children) {
+  /// Helper method to build layout with padding.
+  Widget _buildLayoutWithPadding(List<Widget> children) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: SingleChildScrollView(
@@ -75,7 +83,8 @@ class _CardViewState extends State<CardView> {
     );
   }
 
-  Widget buildScrollableImage() {
+  /// Build the scrollable image view of the card.
+  Widget _buildScrollableImage() {
     return SingleChildScrollView(
       child: Image.network(
         widget.cardData['image_uris']['normal'] ?? '',
@@ -84,58 +93,66 @@ class _CardViewState extends State<CardView> {
     );
   }
 
-  List<Widget> buildCommonWidgets(bool includeImage) {
+  /// Build widgets common to both portrait and landscape layout.
+  List<Widget> _buildCommonWidgets(bool includeImage) {
     return [
-      if (includeImage) buildImageWithDivider(),
-      buildTextWithDivider(widget.cardData['mana_cost']),
-      buildTextWithDivider(widget.cardData['type_line']),
-      buildTextWithDivider(widget.cardData['oracle_text']),
+      if (includeImage) _buildImageWithDivider(),
+      _buildTextWithDivider(widget.cardData['mana_cost']),
+      _buildTextWithDivider(widget.cardData['type_line']),
+      _buildTextWithDivider(widget.cardData['oracle_text']),
       if (widget.cardData['power'] != null ||
           widget.cardData['toughness'] != null)
-        buildTextWithDivider(
+        _buildTextWithDivider(
             '${widget.cardData['power'] ?? ''} / ${widget.cardData['toughness'] ?? ''}'),
-      buildTextWithDivider('Illustrated by ${widget.cardData['artist'] ?? ''}'),
-      buildLegalitiesBox(widget.cardData['legalities']),
-      Divider(thickness: 2),
+      _buildTextWithDivider(
+          'Illustrated by ${widget.cardData['artist'] ?? ''}'),
+      _buildLegalitiesBox(widget.cardData['legalities']),
+      const Divider(thickness: 2),
       ElevatedButton(
-        onPressed: () async {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          String? username = prefs.getString('username');
-          if (username != null) {
-            if (isFavorite) {
-              await firestoreHelper.removeUserFromFavorite(
-                  username, widget.cardData['id']);
-            } else {
-              await firestoreHelper.addFavoriteCard(username, widget.cardData);
-            }
-            _checkIfFavorite();
-          }
-        },
+        onPressed: () async => _toggleFavoriteStatus(),
         child: Text(isFavorite ? "Remove from Favorites" : "Add to Favorites"),
       ),
     ];
   }
 
-  Widget buildTextWithDivider(String? text) {
+  /// Helper method to toggle favorite status of the card.
+  Future<void> _toggleFavoriteStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username');
+    if (username != null) {
+      if (isFavorite) {
+        await firestoreHelper.removeUserFromFavorite(
+            username, widget.cardData['id']);
+      } else {
+        await firestoreHelper.addFavoriteCard(username, widget.cardData);
+      }
+      _checkIfFavorite();
+    }
+  }
+
+  /// Build a text view with a divider below it.
+  Widget _buildTextWithDivider(String? text) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(text ?? '', textAlign: TextAlign.left),
-        Divider(thickness: 1),
+        const Divider(thickness: 1),
       ],
     );
   }
 
-  Widget buildImageWithDivider() {
+  /// Build the image view with a divider below it.
+  Widget _buildImageWithDivider() {
     return Column(
       children: [
         Image.network(widget.cardData['image_uris']['normal'] ?? ''),
-        Divider(thickness: 2),
+        const Divider(thickness: 2),
       ],
     );
   }
 
-  Widget buildLegalitiesBox(Map<String, dynamic>? legalities) {
+  /// Build the legalities box that displays legal status for the card.
+  Widget _buildLegalitiesBox(Map<String, dynamic>? legalities) {
     if (legalities == null) return Container();
 
     var legalityItems = legalities.entries.map((e) {
@@ -146,7 +163,7 @@ class _CardViewState extends State<CardView> {
           children: [
             Container(
               color: e.value == 'legal' ? Colors.green : Colors.grey,
-              padding: EdgeInsets.all(6.0),
+              padding: const EdgeInsets.all(6.0),
               child: SizedBox(
                 height: 20,
                 width: 60, // Set your desired minimum width here
@@ -155,7 +172,7 @@ class _CardViewState extends State<CardView> {
                 ),
               ),
             ),
-            SizedBox(width: 4.0), // Adding some spacing
+            const SizedBox(width: 4.0), // Adding some spacing
             Flexible(
               child: Text(e.key, textAlign: TextAlign.left),
             ),
