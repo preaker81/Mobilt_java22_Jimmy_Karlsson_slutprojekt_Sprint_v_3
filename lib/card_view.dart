@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mtg_companion/data/firestore_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CardView extends StatelessWidget {
   final dynamic cardData;
+  final FirestoreHelper firestoreHelper =
+      FirestoreHelper(); // Initialize FirestoreHelper
 
   CardView({required this.cardData});
 
@@ -68,6 +72,16 @@ class CardView extends StatelessWidget {
       buildTextWithDivider('Illustrated by ${cardData['artist'] ?? ''}'),
       buildLegalitiesBox(cardData['legalities']),
       Divider(thickness: 2),
+      ElevatedButton(
+        onPressed: () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          String? username = prefs.getString('username');
+          if (username != null) {
+            await firestoreHelper.addFavoriteCard(username, cardData);
+          }
+        },
+        child: Text("Favorite"),
+      ),
     ];
   }
 

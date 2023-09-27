@@ -28,4 +28,13 @@ class FirestoreHelper {
 
     return querySnapshot.docs.isNotEmpty;
   }
+
+  Future<void> addFavoriteCard(
+      String username, Map<String, dynamic> cardData) async {
+    await _firestore
+        .collection("users")
+        .doc(username)
+        .collection("favorites")
+        .add(cardData);
+  }
 }

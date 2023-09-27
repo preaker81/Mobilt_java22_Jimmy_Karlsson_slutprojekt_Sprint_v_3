@@ -37,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (isValid) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
+      await prefs.setString('username', username);
       Navigator.pushReplacementNamed(context, '/dashboard');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
