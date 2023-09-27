@@ -111,19 +111,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         final favoriteCards = await FirestoreHelper()
                             .fetchFavoriteCards(username);
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SearchResultScreen(
-                              cards: {
-                                'data': favoriteCards
-                              }, // wrapping it in a Map
-                              isFavorites: true,
+                        if (favoriteCards.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('You have no favorites yet')),
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SearchResultScreen(
+                                cards: {
+                                  'data': favoriteCards
+                                }, // wrapping it in a Map
+                                isFavorites: true,
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        }
                       } else {
                         // Handle user not found case, maybe by showing a SnackBar
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('User not found')),
+                        );
                       }
                     },
                     child: const Text('Favorites'),
