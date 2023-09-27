@@ -3,6 +3,7 @@ import 'package:mtg_companion/login.dart';
 import 'package:mtg_companion/search_result.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mtg_companion/data/api_helper.dart';
+import 'package:mtg_companion/data/firestore_helper.dart'; // New import
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -14,6 +15,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final TextEditingController searchStringController = TextEditingController();
   final apiHelper = ApiHelper();
+  final firestoreHelper = FirestoreHelper(); // New variable
 
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -69,31 +71,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 decoration:
                     const InputDecoration(labelText: 'Search by string'),
               ),
-              // Removed dropdowns
-              // Center the search button
-              Center(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      final cards = await apiHelper.fetchCards(
-                        searchString: searchStringController.text,
-                      );
+              // Center the search and favorites buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      try {
+                        final cards = await apiHelper.fetchCards(
+                          searchString: searchStringController.text,
+                        );
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              SearchResultScreen(cards: cards),
-                        ),
-                      );
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Failed to fetch cards')),
-                      );
-                    }
-                  },
-                  child: const Text('Search'),
-                ),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchResultScreen(
+                              cards: cards,
+                              isFavorites: false,
+                            ),
+                          ),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Failed to fetch cards')),
+                        );
+                      }
+                    },
+                    child: const Text('Search'),
+                  ),
+                  SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      String? username = prefs.getString('username');
+                      if (username != null) {
+                        // fetchFavoriteCards() fetches favorite cards for the user
+                        final favoriteCards = await FirestoreHelper()
+                            .fetchFavoriteCards(username);
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchResultScreen(
+                              cards: {
+                                'data': favoriteCards
+                              }, // wrapping it in a Map
+                              isFavorites: true,
+                            ),
+                          ),
+                        );
+                      } else {
+                        // Handle user not found case, maybe by showing a SnackBar
+                      }
+                    },
+                    child: const Text('Favorites'),
+                  ),
+                ],
               ),
             ],
           ),

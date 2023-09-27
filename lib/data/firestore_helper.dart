@@ -69,4 +69,19 @@ class FirestoreHelper {
       'users': FieldValue.arrayRemove([username]),
     });
   }
+
+  Future<List<Map<String, dynamic>>> fetchFavoriteCards(String username) async {
+    List<Map<String, dynamic>> favoriteCards = [];
+
+    QuerySnapshot snapshot = await _firestore.collection('favorites').get();
+    for (var doc in snapshot.docs) {
+      var data = doc.data() as Map<String, dynamic>;
+      List<dynamic> users = data['users'] as List<dynamic>? ?? [];
+      if (users.contains(username)) {
+        favoriteCards.add(data);
+      }
+    }
+
+    return favoriteCards;
+  }
 }

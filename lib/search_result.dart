@@ -3,8 +3,11 @@ import 'card_view.dart'; // Import the CardView screen
 
 class SearchResultScreen extends StatefulWidget {
   final Map<String, dynamic> cards;
+  final bool isFavorites;
 
-  const SearchResultScreen({Key? key, required this.cards}) : super(key: key);
+  const SearchResultScreen(
+      {Key? key, required this.cards, this.isFavorites = false})
+      : super(key: key);
 
   @override
   _SearchResultScreenState createState() => _SearchResultScreenState();
@@ -27,7 +30,14 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   }
 
   void initializeData() {
-    allCardData = widget.cards['data'];
+    if (widget.isFavorites) {
+      // Assuming the favorite cards are coming in a Map with a 'data' key that contains the list
+      allCardData = widget.cards['data'] as List<dynamic>?;
+    } else {
+      // Handle your API data here, it may already be a List or still be a Map
+      allCardData = widget.cards['data'] as List<
+          dynamic>?; // Adjust this line based on your API response structure
+    }
     filteredCardData = List.from(allCardData ?? []);
     populateUniqueFields();
   }
