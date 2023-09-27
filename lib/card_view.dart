@@ -24,12 +24,8 @@ class CardView extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.network(cardData['image_uris']['normal'] ?? ''),
-            Divider(thickness: 2),
-            ...buildCommonWidgets(),
-          ],
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: buildCommonWidgets(true),
         ),
       ),
     );
@@ -39,13 +35,11 @@ class CardView extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Left side: Card image
-        Expanded(
-          child: SingleChildScrollView(
-            child: Image.network(
-              cardData['image_uris']['normal'] ?? '',
-              fit: BoxFit.cover,
-            ),
+        // Left side: Card image wrapped in SingleChildScrollView
+        SingleChildScrollView(
+          child: Image.network(
+            cardData['image_uris']['normal'] ?? '',
+            fit: BoxFit.cover,
           ),
         ),
         // Right side: Information Container
@@ -54,8 +48,8 @@ class CardView extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: buildCommonWidgets(),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: buildCommonWidgets(false),
               ),
             ),
           ),
@@ -64,50 +58,90 @@ class CardView extends StatelessWidget {
     );
   }
 
-  List<Widget> buildCommonWidgets() {
-    return [
-      Divider(thickness: 2),
-      Text(cardData['name'] ?? ''),
-      Text(cardData['mana_cost'] ?? ''),
+  List<Widget> buildCommonWidgets(bool includeImage) {
+    List<Widget> widgets = [];
+
+    if (includeImage) {
+      widgets.add(Image.network(cardData['image_uris']['normal'] ?? ''));
+      widgets.add(Divider(thickness: 2));
+    }
+
+    widgets.addAll([
+      // Name and Mana Cost
+      Text(cardData['mana_cost'] ?? '', textAlign: TextAlign.left),
       Divider(thickness: 1),
-      Text(cardData['type_line'] ?? ''),
+      // Type Line
+      Text(cardData['type_line'] ?? '', textAlign: TextAlign.left),
       Divider(thickness: 1),
-      Text(cardData['oracle_text'] ?? ''),
+      // Oracle Text
+      Text(cardData['oracle_text'] ?? '', textAlign: TextAlign.left),
       Divider(thickness: 1),
+      // Power and Toughness
       if (cardData['power'] != null || cardData['toughness'] != null)
-        Text('${cardData['power'] ?? ''} / ${cardData['toughness'] ?? ''}'),
+        Text(
+          '${cardData['power'] ?? ''} / ${cardData['toughness'] ?? ''}',
+          textAlign: TextAlign.left,
+        ),
       Divider(thickness: 1),
-      Text(cardData['artist'] ?? ''),
+      // Artist
+      Text(
+        'Illustrated by ${cardData['artist'] ?? ''}',
+        textAlign: TextAlign.left,
+      ),
       Divider(thickness: 1),
+      // Legalities
       buildLegalitiesBox(cardData['legalities']),
       Divider(thickness: 2),
-    ];
+    ]);
+
+    return widgets;
   }
 
   Widget buildLegalitiesBox(Map<String, dynamic>? legalities) {
     if (legalities == null) return Container();
 
     var legalityItems = legalities.entries.map((e) {
-      return Row(
-        children: [
-          Text(e.key),
-          Container(
-            color: e.value == 'legal' ? Colors.green : Colors.grey,
-            child: Text(e.value),
-          ),
-        ],
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              color: e.value == 'legal' ? Colors.green : Colors.grey,
+              padding: EdgeInsets.all(6.0),
+              child: SizedBox(
+                height: 20,
+                width: 60, // Set your desired minimum width here
+                child: Center(
+                  child: Text(e.value),
+                ),
+              ),
+            ),
+            SizedBox(width: 4.0), // Adding some spacing
+            Flexible(
+              child: Text(e.key, textAlign: TextAlign.left),
+            ),
+          ],
+        ),
       );
     }).toList();
 
+    var half = (legalityItems.length / 2).floor();
     var column1 = Column(
-      children: legalityItems.sublist(0, (legalityItems.length / 2).floor()),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: legalityItems.sublist(0, half),
     );
     var column2 = Column(
-      children: legalityItems.sublist((legalityItems.length / 2).floor()),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: legalityItems.sublist(half),
     );
 
     return Row(
-      children: [column1, column2],
+      crossAxisAlignment: CrossAxisAlignment.start, // Aligning items to the top
+      children: [
+        Expanded(child: column1),
+        Expanded(child: column2),
+      ],
     );
   }
 }
