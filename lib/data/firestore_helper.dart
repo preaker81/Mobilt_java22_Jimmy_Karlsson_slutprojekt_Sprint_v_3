@@ -31,10 +31,42 @@ class FirestoreHelper {
 
   Future<void> addFavoriteCard(
       String username, Map<String, dynamic> cardData) async {
-    await _firestore
-        .collection("users")
-        .doc(username)
-        .collection("favorites")
-        .add(cardData);
+    // Use the unique card "id" as the document identifier
+    var cardId = cardData['id'];
+
+    // Check if the card already exists in the 'favorites' collection
+    DocumentSnapshot cardSnapshot =
+        await _firestore.collection('favorites').doc(cardId).get();
+
+    // Update or Set the card data in 'favorites'
+    if (cardSnapshot.exists) {
+      await _firestore.collection('favorites').doc(cardId).update({
+        'users': FieldValue.arrayUnion([username]),
+      });
+    } else {
+      cardData['users'] = [username]; // Initialize the 'users' array
+      await _firestore.collection('favorites').doc(cardId).set(cardData);
+    }
+  }
+
+  Future<bool> isFavoriteCard(String username, String cardId) async {
+    DocumentSnapshot cardSnapshot =
+        await _firestore.collection('favorites').doc(cardId).get();
+
+    if (cardSnapshot.exists) {
+      var data =
+          cardSnapshot.data() as Map<String, dynamic>?; // Explicit casting here
+      if (data != null) {
+        List<dynamic> users = data['users'] as List<dynamic>? ?? [];
+        return users.contains(username);
+      }
+    }
+    return false;
+  }
+
+  Future<void> removeUserFromFavorite(String username, String cardId) async {
+    await _firestore.collection('favorites').doc(cardId).update({
+      'users': FieldValue.arrayRemove([username]),
+    });
   }
 }

@@ -2,12 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:mtg_companion/data/firestore_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class CardView extends StatelessWidget {
+class CardView extends StatefulWidget {
   final dynamic cardData;
-  final FirestoreHelper firestoreHelper =
-      FirestoreHelper(); // Initialize FirestoreHelper
 
   CardView({required this.cardData});
+
+  @override
+  _CardViewState createState() => _CardViewState();
+}
+
+class _CardViewState extends State<CardView> {
+  final FirestoreHelper firestoreHelper = FirestoreHelper();
+  bool isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfFavorite();
+  }
+
+  void _checkIfFavorite() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username');
+    if (username != null) {
+      bool status =
+          await firestoreHelper.isFavoriteCard(username, widget.cardData['id']);
+      setState(() {
+        isFavorite = status;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +46,7 @@ class CardView extends StatelessWidget {
   }
 
   AppBar buildAppBar() {
-    return AppBar(title: Text(cardData['name'] ?? 'Unknown Card'));
+    return AppBar(title: Text(widget.cardData['name'] ?? 'Unknown Card'));
   }
 
   Widget buildPortraitLayout() {
@@ -54,7 +78,7 @@ class CardView extends StatelessWidget {
   Widget buildScrollableImage() {
     return SingleChildScrollView(
       child: Image.network(
-        cardData['image_uris']['normal'] ?? '',
+        widget.cardData['image_uris']['normal'] ?? '',
         fit: BoxFit.cover,
       ),
     );
@@ -63,24 +87,31 @@ class CardView extends StatelessWidget {
   List<Widget> buildCommonWidgets(bool includeImage) {
     return [
       if (includeImage) buildImageWithDivider(),
-      buildTextWithDivider(cardData['mana_cost']),
-      buildTextWithDivider(cardData['type_line']),
-      buildTextWithDivider(cardData['oracle_text']),
-      if (cardData['power'] != null || cardData['toughness'] != null)
+      buildTextWithDivider(widget.cardData['mana_cost']),
+      buildTextWithDivider(widget.cardData['type_line']),
+      buildTextWithDivider(widget.cardData['oracle_text']),
+      if (widget.cardData['power'] != null ||
+          widget.cardData['toughness'] != null)
         buildTextWithDivider(
-            '${cardData['power'] ?? ''} / ${cardData['toughness'] ?? ''}'),
-      buildTextWithDivider('Illustrated by ${cardData['artist'] ?? ''}'),
-      buildLegalitiesBox(cardData['legalities']),
+            '${widget.cardData['power'] ?? ''} / ${widget.cardData['toughness'] ?? ''}'),
+      buildTextWithDivider('Illustrated by ${widget.cardData['artist'] ?? ''}'),
+      buildLegalitiesBox(widget.cardData['legalities']),
       Divider(thickness: 2),
       ElevatedButton(
         onPressed: () async {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           String? username = prefs.getString('username');
           if (username != null) {
-            await firestoreHelper.addFavoriteCard(username, cardData);
+            if (isFavorite) {
+              await firestoreHelper.removeUserFromFavorite(
+                  username, widget.cardData['id']);
+            } else {
+              await firestoreHelper.addFavoriteCard(username, widget.cardData);
+            }
+            _checkIfFavorite();
           }
         },
-        child: Text("Favorite"),
+        child: Text(isFavorite ? "Remove from Favorites" : "Add to Favorites"),
       ),
     ];
   }
@@ -98,7 +129,7 @@ class CardView extends StatelessWidget {
   Widget buildImageWithDivider() {
     return Column(
       children: [
-        Image.network(cardData['image_uris']['normal'] ?? ''),
+        Image.network(widget.cardData['image_uris']['normal'] ?? ''),
         Divider(thickness: 2),
       ],
     );
