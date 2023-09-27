@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'card_view.dart'; // Import the CardView screen
 
 class SearchResultScreen extends StatefulWidget {
   final Map<String, dynamic> cards;
 
-  const SearchResultScreen({super.key, required this.cards});
+  const SearchResultScreen({Key? key, required this.cards}) : super(key: key);
 
   @override
   _SearchResultScreenState createState() => _SearchResultScreenState();
@@ -33,9 +34,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
         .toSet()
         .toList();
 
-    // Sort cmc values
     uniqueCmcs?.sort((a, b) => double.parse(a).compareTo(double.parse(b)));
-    // Sort types alphabetically
     uniqueTypes?.sort((a, b) => a.compareTo(b));
   }
 
@@ -55,61 +54,139 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Search Results')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
               children: [
-                Expanded(
-                  child: buildDropdown('Select CMC', uniqueCmcs, (value) {
-                    setState(() {
-                      selectedCmc = value;
-                    });
-                    _filterCards();
-                  }, selectedCmc),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: buildDropdown('Select Color', uniqueColors, (value) {
-                    setState(() {
-                      selectedColor = value;
-                    });
-                    _filterCards();
-                  }, selectedColor),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: buildDropdown('Select Type', uniqueTypes, (value) {
-                      setState(() {
-                        selectedType = value;
-                      });
-                      _filterCards();
-                    }, selectedType),
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16, // Add spacing horizontally
-                        mainAxisSpacing: 16, // Add spacing vertically
+                if (orientation == Orientation.portrait)
+                  Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: buildDropdown(
+                              'Select CMC',
+                              uniqueCmcs,
+                              (value) {
+                                setState(() {
+                                  selectedCmc = value;
+                                });
+                                _filterCards();
+                              },
+                              selectedCmc,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: buildDropdown(
+                              'Select Color',
+                              uniqueColors,
+                              (value) {
+                                setState(() {
+                                  selectedColor = value;
+                                });
+                                _filterCards();
+                              },
+                              selectedColor,
+                            ),
+                          ),
+                        ],
                       ),
-                      itemCount: filteredCardData?.length ?? 0,
-                      itemBuilder: (context, index) {
-                        var currentCard = filteredCardData?[index];
-                        var name = currentCard?['name'] ?? 'Unknown';
-                        var imageUris = currentCard?['image_uris'];
-                        var normalImageUrl = imageUris?['normal'];
+                      const SizedBox(height: 16),
+                      buildDropdown(
+                        'Select Type',
+                        uniqueTypes,
+                        (value) {
+                          setState(() {
+                            selectedType = value;
+                          });
+                          _filterCards();
+                        },
+                        selectedType,
+                      ),
+                    ],
+                  ),
+                if (orientation == Orientation.landscape)
+                  Row(
+                    children: [
+                      Expanded(
+                        flex:
+                            2, // Giving less room than 'Card Type' dropdown but more than before
+                        child: buildDropdown(
+                          'Select CMC',
+                          uniqueCmcs,
+                          (value) {
+                            setState(() {
+                              selectedCmc = value;
+                            });
+                            _filterCards();
+                          },
+                          selectedCmc,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex:
+                            2, // Giving less room than 'Card Type' dropdown but more than before
+                        child: buildDropdown(
+                          'Select Color',
+                          uniqueColors,
+                          (value) {
+                            setState(() {
+                              selectedColor = value;
+                            });
+                            _filterCards();
+                          },
+                          selectedColor,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 3, // Giving more room for 'Card Type' dropdown
+                        child: buildDropdown(
+                          'Select Type',
+                          uniqueTypes,
+                          (value) {
+                            setState(() {
+                              selectedType = value;
+                            });
+                            _filterCards();
+                          },
+                          selectedType,
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount:
+                          orientation == Orientation.portrait ? 2 : 3,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: filteredCardData?.length ?? 0,
+                    itemBuilder: (context, index) {
+                      var currentCard = filteredCardData?[index];
+                      var name = currentCard?['name'] ?? 'Unknown';
+                      var imageUris = currentCard?['image_uris'];
+                      var normalImageUrl = imageUris?['normal'];
 
-                        return Column(
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CardView(
+                                cardData: currentCard,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(name, overflow: TextOverflow.ellipsis),
@@ -119,15 +196,15 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                                   : Container(),
                             ),
                           ],
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -139,7 +216,9 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
       hint: Text(hint),
       items: [
         const DropdownMenuItem<String>(
-            value: null, child: Text('None')), // For unsetting the filter
+          value: null,
+          child: Text('None'),
+        ),
         ...?items?.map((String value) {
           return DropdownMenuItem<String>(
             value: value,
