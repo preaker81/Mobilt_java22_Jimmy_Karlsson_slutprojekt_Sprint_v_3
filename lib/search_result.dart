@@ -37,11 +37,11 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
 
   // Initialize data based on whether it's a favorites view or not
   void initializeData() {
-    allCardData =
-        widget.cards['data'] as List<dynamic>?; // Populate the card data
-    filteredCardData =
-        List.from(allCardData ?? []); // Copy all data to the filtered list
-    populateUniqueFields(); // Populate unique filter options
+    allCardData = (widget.cards['data'] as List<dynamic>?)
+        ?.where((card) => card['image_uris'] != null)
+        .toList(); // Filter out cards without image_uris at the time of initialization
+    filteredCardData = List.from(allCardData ?? []);
+    populateUniqueFields();
   }
 
   // Populate unique filter options based on allCardData
