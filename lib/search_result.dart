@@ -23,8 +23,16 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   @override
   void initState() {
     super.initState();
+    initializeData();
+  }
+
+  void initializeData() {
     allCardData = widget.cards['data'];
     filteredCardData = List.from(allCardData ?? []);
+    populateUniqueFields();
+  }
+
+  void populateUniqueFields() {
     uniqueCmcs =
         allCardData?.map((card) => card['cmc'].toString()).toSet().toList();
     uniqueColors =
@@ -50,6 +58,103 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     });
   }
 
+  DropdownButton<String> buildDropdown(String hint, List<String>? items,
+      ValueChanged<String?> onChanged, String? selectedValue) {
+    return DropdownButton<String>(
+      value: selectedValue,
+      hint: Text(hint),
+      items: buildDropdownItems(items),
+      onChanged: onChanged,
+    );
+  }
+
+  List<DropdownMenuItem<String>> buildDropdownItems(List<String>? items) {
+    return [
+      const DropdownMenuItem<String>(
+        value: null,
+        child: Text('None'),
+      ),
+      ...?items?.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }),
+    ];
+  }
+
+  Widget buildPortraitLayout() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            buildDropdown(
+              'Select CMC',
+              uniqueCmcs,
+              (value) {
+                setState(() => selectedCmc = value);
+                _filterCards();
+              },
+              selectedCmc,
+            ),
+            buildDropdown(
+              'Select Color',
+              uniqueColors,
+              (value) {
+                setState(() => selectedColor = value);
+                _filterCards();
+              },
+              selectedColor,
+            ),
+          ],
+        ),
+        buildDropdown(
+          'Select Type',
+          uniqueTypes,
+          (value) {
+            setState(() => selectedType = value);
+            _filterCards();
+          },
+          selectedType,
+        ),
+      ],
+    );
+  }
+
+  Widget buildLandscapeLayout() {
+    return Row(
+      children: [
+        buildDropdown(
+          'Select CMC',
+          uniqueCmcs,
+          (value) {
+            setState(() => selectedCmc = value);
+            _filterCards();
+          },
+          selectedCmc,
+        ),
+        buildDropdown(
+          'Select Color',
+          uniqueColors,
+          (value) {
+            setState(() => selectedColor = value);
+            _filterCards();
+          },
+          selectedColor,
+        ),
+        buildDropdown(
+          'Select Type',
+          uniqueTypes,
+          (value) {
+            setState(() => selectedType = value);
+            _filterCards();
+          },
+          selectedType,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,105 +165,9 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                if (orientation == Orientation.portrait)
-                  Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: buildDropdown(
-                              'Select CMC',
-                              uniqueCmcs,
-                              (value) {
-                                setState(() {
-                                  selectedCmc = value;
-                                });
-                                _filterCards();
-                              },
-                              selectedCmc,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: buildDropdown(
-                              'Select Color',
-                              uniqueColors,
-                              (value) {
-                                setState(() {
-                                  selectedColor = value;
-                                });
-                                _filterCards();
-                              },
-                              selectedColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      buildDropdown(
-                        'Select Type',
-                        uniqueTypes,
-                        (value) {
-                          setState(() {
-                            selectedType = value;
-                          });
-                          _filterCards();
-                        },
-                        selectedType,
-                      ),
-                    ],
-                  ),
+                if (orientation == Orientation.portrait) buildPortraitLayout(),
                 if (orientation == Orientation.landscape)
-                  Row(
-                    children: [
-                      Expanded(
-                        flex:
-                            2, // Giving less room than 'Card Type' dropdown but more than before
-                        child: buildDropdown(
-                          'Select CMC',
-                          uniqueCmcs,
-                          (value) {
-                            setState(() {
-                              selectedCmc = value;
-                            });
-                            _filterCards();
-                          },
-                          selectedCmc,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        flex:
-                            2, // Giving less room than 'Card Type' dropdown but more than before
-                        child: buildDropdown(
-                          'Select Color',
-                          uniqueColors,
-                          (value) {
-                            setState(() {
-                              selectedColor = value;
-                            });
-                            _filterCards();
-                          },
-                          selectedColor,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        flex: 3, // Giving more room for 'Card Type' dropdown
-                        child: buildDropdown(
-                          'Select Type',
-                          uniqueTypes,
-                          (value) {
-                            setState(() {
-                              selectedType = value;
-                            });
-                            _filterCards();
-                          },
-                          selectedType,
-                        ),
-                      ),
-                    ],
-                  ),
+                  buildLandscapeLayout(),
                 const SizedBox(height: 16),
                 Expanded(
                   child: GridView.builder(
@@ -206,27 +215,6 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
           );
         },
       ),
-    );
-  }
-
-  DropdownButton<String> buildDropdown(String hint, List<String>? items,
-      ValueChanged<String?> onChanged, String? selectedValue) {
-    return DropdownButton<String>(
-      value: selectedValue,
-      hint: Text(hint),
-      items: [
-        const DropdownMenuItem<String>(
-          value: null,
-          child: Text('None'),
-        ),
-        ...?items?.map((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }),
-      ],
-      onChanged: onChanged,
     );
   }
 }

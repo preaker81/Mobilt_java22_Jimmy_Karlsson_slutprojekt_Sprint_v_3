@@ -8,93 +8,86 @@ class CardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OrientationBuilder(
-      builder: (context, orientation) {
-        return Scaffold(
-          appBar: AppBar(title: Text(cardData['name'] ?? 'Unknown Card')),
-          body: orientation == Orientation.portrait
-              ? buildPortraitLayout()
-              : buildLandscapeLayout(),
-        );
-      },
+      builder: (context, orientation) => Scaffold(
+        appBar: buildAppBar(),
+        body: orientation == Orientation.portrait
+            ? buildPortraitLayout()
+            : buildLandscapeLayout(),
+      ),
     );
   }
 
+  AppBar buildAppBar() {
+    return AppBar(title: Text(cardData['name'] ?? 'Unknown Card'));
+  }
+
   Widget buildPortraitLayout() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: buildCommonWidgets(true),
-        ),
-      ),
-    );
+    return buildLayoutWithPadding(buildCommonWidgets(true));
   }
 
   Widget buildLandscapeLayout() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Left side: Card image wrapped in SingleChildScrollView
-        SingleChildScrollView(
-          child: Image.network(
-            cardData['image_uris']['normal'] ?? '',
-            fit: BoxFit.cover,
-          ),
-        ),
-        // Right side: Information Container
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: buildCommonWidgets(false),
-              ),
-            ),
-          ),
-        ),
+        buildScrollableImage(),
+        Expanded(child: buildLayoutWithPadding(buildCommonWidgets(false))),
       ],
     );
   }
 
-  List<Widget> buildCommonWidgets(bool includeImage) {
-    List<Widget> widgets = [];
-
-    if (includeImage) {
-      widgets.add(Image.network(cardData['image_uris']['normal'] ?? ''));
-      widgets.add(Divider(thickness: 2));
-    }
-
-    widgets.addAll([
-      // Name and Mana Cost
-      Text(cardData['mana_cost'] ?? '', textAlign: TextAlign.left),
-      Divider(thickness: 1),
-      // Type Line
-      Text(cardData['type_line'] ?? '', textAlign: TextAlign.left),
-      Divider(thickness: 1),
-      // Oracle Text
-      Text(cardData['oracle_text'] ?? '', textAlign: TextAlign.left),
-      Divider(thickness: 1),
-      // Power and Toughness
-      if (cardData['power'] != null || cardData['toughness'] != null)
-        Text(
-          '${cardData['power'] ?? ''} / ${cardData['toughness'] ?? ''}',
-          textAlign: TextAlign.left,
+  Widget buildLayoutWithPadding(List<Widget> children) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: children,
         ),
-      Divider(thickness: 1),
-      // Artist
-      Text(
-        'Illustrated by ${cardData['artist'] ?? ''}',
-        textAlign: TextAlign.left,
       ),
-      Divider(thickness: 1),
-      // Legalities
+    );
+  }
+
+  Widget buildScrollableImage() {
+    return SingleChildScrollView(
+      child: Image.network(
+        cardData['image_uris']['normal'] ?? '',
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
+  List<Widget> buildCommonWidgets(bool includeImage) {
+    return [
+      if (includeImage) buildImageWithDivider(),
+      buildTextWithDivider(cardData['mana_cost']),
+      buildTextWithDivider(cardData['type_line']),
+      buildTextWithDivider(cardData['oracle_text']),
+      if (cardData['power'] != null || cardData['toughness'] != null)
+        buildTextWithDivider(
+            '${cardData['power'] ?? ''} / ${cardData['toughness'] ?? ''}'),
+      buildTextWithDivider('Illustrated by ${cardData['artist'] ?? ''}'),
       buildLegalitiesBox(cardData['legalities']),
       Divider(thickness: 2),
-    ]);
+    ];
+  }
 
-    return widgets;
+  Widget buildTextWithDivider(String? text) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(text ?? '', textAlign: TextAlign.left),
+        Divider(thickness: 1),
+      ],
+    );
+  }
+
+  Widget buildImageWithDivider() {
+    return Column(
+      children: [
+        Image.network(cardData['image_uris']['normal'] ?? ''),
+        Divider(thickness: 2),
+      ],
+    );
   }
 
   Widget buildLegalitiesBox(Map<String, dynamic>? legalities) {
@@ -137,7 +130,7 @@ class CardView extends StatelessWidget {
     );
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start, // Aligning items to the top
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(child: column1),
         Expanded(child: column2),
