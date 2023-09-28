@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'data/firestore_helper.dart';
 
-/// LoginScreen Widget - Represents the login screen.
+// LoginScreen Widget - Represents the login screen.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -10,7 +10,7 @@ class LoginScreen extends StatefulWidget {
   _LoginScreenState createState() => _LoginScreenState();
 }
 
-/// _LoginScreenState - Stateful logic for LoginScreen.
+// _LoginScreenState - Stateful logic for LoginScreen.
 class _LoginScreenState extends State<LoginScreen> {
   // Controllers for text fields
   final TextEditingController _usernameController = TextEditingController();
@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _checkLoggedInStatus();
   }
 
-  /// Check if the user is already logged in.
+  // Check if the user is already logged in.
   Future<void> _checkLoggedInStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? isLoggedIn = prefs.getBool('isLoggedIn');
@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  /// Login functionality.
+  // Login functionality.
   Future<void> _login() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  /// Build the UI components for login.
+  // Build the UI components for login.
   List<Widget> _buildLoginUI() {
     return [
       Padding(
@@ -105,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ElevatedButton(
               onPressed: _login,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green[800],
+                backgroundColor: Color.fromARGB(255, 21, 248, 32),
               ),
               child: const Text('Login'),
             ),

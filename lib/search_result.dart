@@ -60,7 +60,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     uniqueTypes?.sort((a, b) => a.compareTo(b));
   }
 
-  /// Filters the list of cards based on selected CMC, color, and type.
+  // Filters the list of cards based on selected CMC, color, and type.
   void _filterCards() {
     setState(() {
       // Filter cards based on selected values.
@@ -74,7 +74,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     });
   }
 
-  /// Builds a dropdown menu with the given parameters.
+  // Builds a dropdown menu with the given parameters.
   DropdownButton<String> buildDropdown(String hint, List<String>? items,
       ValueChanged<String?> onChanged, String? selectedValue) {
     return DropdownButton<String>(
@@ -85,14 +85,9 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     );
   }
 
-  /// Builds the list of items for the dropdown menu.
+  // Builds the list of items for the dropdown menu.
   List<DropdownMenuItem<String>> buildDropdownItems(List<String>? items) {
     return [
-      const DropdownMenuItem<String>(
-        value: null,
-        child: Text('None'),
-      ),
-      // Add items if the list is not null
       ...?items?.map((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -102,34 +97,58 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     ];
   }
 
-  /// Builds the layout for portrait orientation.
+// Function for reseting the filters
+  void _resetFilters() {
+    setState(() {
+      selectedCmc = null;
+      selectedColor = null;
+      selectedType = null;
+      _filterCards();
+    });
+  }
+
+// Builds the layout for portrait orientation.
   Widget buildPortraitLayout() {
     return Column(
       children: [
-        // Dropdowns for CMC and Color
         Row(
           children: [
-            buildDropdown(
-              'Select CMC',
-              uniqueCmcs,
-              (value) {
-                setState(() => selectedCmc = value);
-                _filterCards();
-              },
-              selectedCmc,
+            Expanded(
+              child: buildDropdown(
+                'Select CMC',
+                uniqueCmcs,
+                (value) {
+                  setState(() => selectedCmc = value);
+                  _filterCards();
+                },
+                selectedCmc,
+              ),
             ),
-            buildDropdown(
-              'Select Color',
-              uniqueColors,
-              (value) {
-                setState(() => selectedColor = value);
-                _filterCards();
-              },
-              selectedColor,
+            Expanded(
+              child: buildDropdown(
+                'Select Color',
+                uniqueColors,
+                (value) {
+                  setState(() => selectedColor = value);
+                  _filterCards();
+                },
+                selectedColor,
+              ),
+            ),
+            Container(
+              height: 30, // Set the height
+              child: ElevatedButton(
+                onPressed: _resetFilters,
+                style: ElevatedButton.styleFrom(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
+                child: const Text('Reset'),
+              ),
             ),
           ],
         ),
-        // Dropdown for Type
         buildDropdown(
           'Select Type',
           uniqueTypes,
@@ -139,40 +158,60 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
           },
           selectedType,
         ),
+        const SizedBox(height: 16), // Provide some spacing
       ],
     );
   }
 
-  /// Builds the layout for landscape orientation.
+// Builds the layout for landscape orientation.
   Widget buildLandscapeLayout() {
     return Row(
       children: [
-        buildDropdown(
-          'Select CMC',
-          uniqueCmcs,
-          (value) {
-            setState(() => selectedCmc = value);
-            _filterCards();
-          },
-          selectedCmc,
+        Expanded(
+          child: buildDropdown(
+            'Select CMC',
+            uniqueCmcs,
+            (value) {
+              setState(() => selectedCmc = value);
+              _filterCards();
+            },
+            selectedCmc,
+          ),
         ),
-        buildDropdown(
-          'Select Color',
-          uniqueColors,
-          (value) {
-            setState(() => selectedColor = value);
-            _filterCards();
-          },
-          selectedColor,
+        Expanded(
+          child: buildDropdown(
+            'Select Color',
+            uniqueColors,
+            (value) {
+              setState(() => selectedColor = value);
+              _filterCards();
+            },
+            selectedColor,
+          ),
         ),
-        buildDropdown(
-          'Select Type',
-          uniqueTypes,
-          (value) {
-            setState(() => selectedType = value);
-            _filterCards();
-          },
-          selectedType,
+        Expanded(
+          flex: 2, // To make this dropdown take more space
+          child: buildDropdown(
+            'Select Type',
+            uniqueTypes,
+            (value) {
+              setState(() => selectedType = value);
+              _filterCards();
+            },
+            selectedType,
+          ),
+        ),
+        Container(
+          height: 30, // Set the height
+          child: ElevatedButton(
+            onPressed: _resetFilters,
+            style: ElevatedButton.styleFrom(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
+            child: const Text('Reset'),
+          ),
         ),
       ],
     );
@@ -187,17 +226,13 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
       body: OrientationBuilder(
         builder: (context, orientation) {
           return Padding(
-            // Outer padding for the entire screen
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // Conditionally render layout based on orientation
                 if (orientation == Orientation.portrait) buildPortraitLayout(),
                 if (orientation == Orientation.landscape)
                   buildLandscapeLayout(),
-                // Spacing between the dropdowns and the grid
                 const SizedBox(height: 16),
-                // Grid view to display filtered cards
                 Expanded(
                   child: GridView.builder(
                     // Define grid properties

@@ -57,7 +57,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onWillPop: () => _onWillPop(context),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Dashboard'),
+          title: const Text('Card Search'),
           actions: [
             TextButton(
               onPressed: () => _logout(context),

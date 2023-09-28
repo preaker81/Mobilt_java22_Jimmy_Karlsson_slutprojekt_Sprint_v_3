@@ -7,8 +7,8 @@ import 'login.dart'; // Login screen
 import 'new_account.dart'; // New Account screen
 import 'dashboard.dart'; // Dashboard screen
 
-/// The `main()` function serves as the entry point for the Flutter application.
-/// It initializes Firebase before running the app.
+// The `main()` function serves as the entry point for the Flutter application.
+// It initializes Firebase before running the app.
 void main() async {
   // Ensures that the Flutter widgets library is properly initialized
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,14 +22,13 @@ void main() async {
   runApp(const MyApp());
 }
 
-/// `MyApp` is the root widget of the application.
-///
-/// This is a StatelessWidget, meaning it is immutable. It sets up routes and app-wide theme.
+// `MyApp` is the root widget of the application.
+// This is a StatelessWidget, meaning it is immutable. It sets up routes and app-wide theme.
 class MyApp extends StatelessWidget {
   // Constructor for MyApp widget
   const MyApp({super.key});
 
-  /// Builds the widget tree for `MyApp`.
+  // Builds the widget tree for `MyApp`.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -49,7 +48,7 @@ class MyApp extends StatelessWidget {
       // Define the app-wide theme
       theme: ThemeData(
         // Set the color scheme based on a seed color
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
 
         // Configure the AppBar theme
         appBarTheme: const AppBarTheme(

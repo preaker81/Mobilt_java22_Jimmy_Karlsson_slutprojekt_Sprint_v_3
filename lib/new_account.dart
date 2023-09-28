@@ -16,7 +16,7 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create New Account')),
+      appBar: AppBar(title: const Text('New Account')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -59,14 +59,17 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
                         usernameController.text, passwordController.text);
                     Navigator.pop(context); // Go back to the login screen
                   } else {
-                    // You can show a dialog or snackbar here for failed validation
+                    // Show a snackbar for failed validation
+                    final snackBar = SnackBar(
+                      content: Text('Both username and password are required'),
+                      duration: Duration(seconds: 2),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[800], // background
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
-                  ),
+                  backgroundColor:
+                      Color.fromARGB(255, 21, 248, 32), // button background
                 ),
                 child: const Text('Create New User',
                     style: TextStyle(color: Colors.black)),
