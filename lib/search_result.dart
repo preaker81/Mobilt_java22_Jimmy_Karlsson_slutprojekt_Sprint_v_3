@@ -135,7 +135,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                 selectedColor,
               ),
             ),
-            Container(
+            SizedBox(
               height: 30, // Set the height
               child: ElevatedButton(
                 onPressed: _resetFilters,
@@ -201,7 +201,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
             selectedType,
           ),
         ),
-        Container(
+        SizedBox(
           height: 30, // Set the height
           child: ElevatedButton(
             onPressed: _resetFilters,

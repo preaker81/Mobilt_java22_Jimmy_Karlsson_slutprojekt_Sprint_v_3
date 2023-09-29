@@ -60,7 +60,7 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
                     Navigator.pop(context); // Go back to the login screen
                   } else {
                     // Show a snackbar for failed validation
-                    final snackBar = SnackBar(
+                    const snackBar = SnackBar(
                       content: Text('Both username and password are required'),
                       duration: Duration(seconds: 2),
                     );
@@ -69,7 +69,7 @@ class _NewAccountScreenState extends State<NewAccountScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
-                      Color.fromARGB(255, 21, 248, 32), // button background
+                      const Color.fromARGB(255, 21, 248, 32), // button background
                 ),
                 child: const Text('Create New User',
                     style: TextStyle(color: Colors.black)),
